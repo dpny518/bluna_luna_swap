@@ -11,8 +11,8 @@ from terra_sdk.core.coins import Coins
 
 from time import sleep
 from pprint import pprint, pp
-from dotenv import load_dotenv
-load_dotenv()
+
+
 import os
 SEED = os.environ.get("MNEMONIC")
 MILLION = 1000000
