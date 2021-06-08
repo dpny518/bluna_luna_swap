@@ -188,24 +188,27 @@ while True:
     print('bluna to luna')
     print(bluna_luna_ratio)
 
-    if(luna_bluna_ratio>luna_to_bluna_min_rate):
-        swap_amount=int(num_Luna)
-        print('swap Luna -> bLuna')
-        if(num_Luna < 10):
-            print('not enough bLuna to swap')
-        else:
+
+    if num_Luna  > num_bLunaTokens:
+        print("we need to find a good time to switch luna to bluna")
+        if(luna_bluna_ratio>luna_to_bluna_min_rate):
+            swap_amount=int(num_Luna)
+            print('swap Luna -> bLuna')
             swap_result = swap.swap_luna(swap_amount, rate['return_amount'])
             print(swap_result)
-    elif(bluna_luna_ratio>bluna_to_luna_min_rate):
-        print('swap bluna -> Luna')
-        swap_amount=int(num_bLunaTokens)
-        if(num_bLunaTokens < 10):
-            print('not enough bLuna to swap')
         else:
+            print("not good rate to swap, current rate:"+ str(luna_bluna_ratio))
+            print("We want a rate better than:, current rate:" + str(luna_to_bluna_min_rate))
+    else:
+        print("we need to find a good time to switch bluna to luna")
+        if(bluna_luna_ratio>bluna_to_luna_min_rate):
+            print('swap bluna -> Luna')
+            swap_amount=int(num_bLunaTokens)
             swap_result = swap.swap_bluna(swap_amount, rate['return_amount'])
             print(swap_result)
-    else:
-        print("no swapping right now")
-    sleep(5)
+        else:
+            print("not good rate to swap, current rate:" +str(bluna_luna_ratio))
+            print("We want a rate better than:, current rate:"+ str(bluna_to_luna_min_rate))
+    sleep(360)
 
-ratio
+
