@@ -12,7 +12,7 @@ from contact_addresses import contact_addresses_lookup
 from time import sleep
 from pprint import pprint, pp
 from terraswap_swap_watch import run_terra_swap_price_watcher, get_luna_price_prices
-
+import base64
 import os
 SEED = os.environ.get("MNEMONIC")
 NETWORK = 'TESTNET'
@@ -126,15 +126,12 @@ class TerraSwap:
 {
   "send": {
     "contract": "terra13e4jmcjnwrauvl2fnjdwex0exuzd8zrh5xk29v",
-    "amount": "1000000",
-    "msg": {
-      "swap": {
-        "belief_price": "0.759270887352293339",
-        "max_spread": "0.1"
+    "amount": str(amount * MILLION),
+    "msg": "eyJzd2FwIjp7fX0="
       }
     }
-  }
-}
+  
+
             )
         tx = self.wallet.create_and_sign_tx(msgs=[swap_bluna_to_luna], gas_prices="0.15uusd", gas_adjustment=1.5)
         # fee = self.terra.tx.estimate_fee(tx)
@@ -156,19 +153,29 @@ swap = TerraSwap(terra, wallet)
 bLunaToken = BondedLunaToken(terra, wallet)
 # pp(bLunaToken.get_balance())
 num_bLunaTokens = (int) (bLunaToken.get_balance()['balance']) / MILLION
+pp("number of bluna")
 pp(num_bLunaTokens)
 
-swap_amount = 100
+#swap_amount = 100
 luna_to_bluna_min_rate = 1.03
 bluna_to_luna_min_rate = .98
 
 coins = terra.bank.balance(wallet.key.acc_address)
+pp("number of native coins")
 pp(coins)
 
 num_Luna = coins.get('uluna').amount / MILLION
+pp("number of luna")
 pp(num_Luna)
 # terra.tx.search()
+swap_amount=500
 while True:
+    num_Luna = coins.get('uluna').amount / MILLION
+    num_bLunaTokens = (int) (bLunaToken.get_balance()['balance']) / MILLION
+    if num_Luna  > num_bLunaTokens:
+        swap_amount=int(num_Luna)  
+    else:
+        swap_amount=int(num_bLunaTokens)
     rate = swap.get_exchange_rate(swap_amount)
     return_amount = int(swap.get_exchange_rate(swap_amount)['return_amount'])
     exchange_rate = round(return_amount * 100 / (swap_amount * 1000000) - 100, 3)
@@ -182,22 +189,23 @@ while True:
     print(bluna_luna_ratio)
 
     if(luna_bluna_ratio>luna_to_bluna_min_rate):
+        swap_amount=int(num_Luna)
         print('swap Luna -> bLuna')
-        if(num_Luna < swap_amount):
+        if(num_Luna < 10):
             print('not enough bLuna to swap')
         else:
             swap_result = swap.swap_luna(swap_amount, rate['return_amount'])
             print(swap_result)
     elif(bluna_luna_ratio>bluna_to_luna_min_rate):
         print('swap bluna -> Luna')
-        if(num_Luna < swap_amount):
+        swap_amount=int(num_bLunaTokens)
+        if(num_bLunaTokens < 10):
             print('not enough bLuna to swap')
         else:
-            print("bluna to luna swap doesn't work")
-            #swap_result = swap.swap_bluna(swap_amount, rate['return_amount'])
-            #print(swap_result)
+            swap_result = swap.swap_bluna(swap_amount, rate['return_amount'])
+            print(swap_result)
     else:
         print("no swapping right now")
     sleep(5)
 
-
+ratio
