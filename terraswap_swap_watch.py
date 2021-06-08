@@ -30,7 +30,7 @@ def run_terra_swap_price_watcher():
         commission_amount = int(response.json().get('result').get('commission_amount'))
         spread_amount = int(response.json().get('result').get('spread_amount'))
         prices_list.append({'return_amount':return_amount, 'commission_amount':commission_amount, 'price_for': 'Bluna to Luna', 'spread_amount': spread_amount})
-
+    spread_list=[]
     for item in prices_list:
         # Assuming luna:bluna are 1:1
         luna_amount = 1000000
@@ -40,21 +40,14 @@ def run_terra_swap_price_watcher():
         spread_amount = item.get('spread_amount')
         percent_diff = (return_amount - luna_amount) / luna_amount * 100
         lunas_to_blunas_diff = return_amount - luna_amount
-        # TerraSwap fee
-        percent_diff -= 0.3
-
+ 
         # Results
-        price_diff = round(percent_diff, 4)
         price_ratio = (lunas_to_blunas_diff + luna_amount) / 1000000
-        lazy_render = f"{item['price_for']} => Diff: {price_diff}%, Ratio (1-1): {price_ratio}, Spreed: {spread_amount}"
+ 
+        spread_list.append(price_ratio )
 
-        lazy_render_list.append(lazy_render)
 
-    luna_prices = get_luna_price_prices()
-    lazy_render = f"SELL: ${luna_prices['sell']} (Luna to UST) - BUY: ${luna_prices['buy']} (UST to Luna)."
-    lazy_render_list.append(lazy_render)
-
-    return lazy_render_list
+    return spread_list
 
 
 def get_luna_price_prices():
