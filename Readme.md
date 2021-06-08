@@ -8,6 +8,11 @@ Update buy and sell rates
 luna_to_bluna_min_rate = 1.03
 bluna_to_luna_min_rate = .98
 ```
+Update NETWORK = 'TESTNET' or NETWORK = 'MAINNET' in swapbot.py
+If you are using testnet, then you can get some coins for your account at 
+```
+https://faucet.terra.money/
+```
 Run the docker
 ```
 docker build -t bluna_luna .
