@@ -1,12 +1,12 @@
 # Terraswap Luna:bluna exchange
-## Swaps Luna to Bluna if % > buy_min_rate and Swaps back if % < sell_max_rate 
+## Swaps Luna to Bluna based on minimum rate
 
 
 Edit Dockerfile, paste your seed phrase in the Dockerfile after ENV MNEMONIC "", where it says paste your seed phrase
 Update buy and sell rates
 ```
-buy_min_rate
-sell_max_rate 
+luna_to_bluna_min_rate = 1.03
+bluna_to_luna_min_rate = .98
 ```
 Run the docker
 ```
