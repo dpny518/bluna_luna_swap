@@ -105,7 +105,8 @@ class TerraSwap:
 
 bot_token = 'xxxxxxxxx'
 
-terra = LCDClient(chain_id="columbus-4", url="https://lcd.terra.dev")
+#terra = LCDClient(chain_id="columbus-4", url="https://lcd.terra.dev")
+terra = LCDClient(chain_id="tequila-0004", url="https://lcd.terra.dev")
 mk = MnemonicKey(mnemonic=SEED)
 wallet = terra.wallet(mk)
 swap = TerraSwap(terra, wallet)
