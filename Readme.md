@@ -5,8 +5,8 @@
 Edit Dockerfile, paste your seed phrase in the Dockerfile after ENV MNEMONIC "", where it says paste your seed phrase
 Update buy and sell rates
 ```
-luna_to_bluna_min_rate = 1.03
-bluna_to_luna_min_rate = .98
+luna_to_bluna_min_rate = .03
+bluna_to_luna_min_rate = 0
 ```
 Update NETWORK = 'TESTNET' or NETWORK = 'MAINNET' in swapbot.py
 If you are using testnet, then you can get some coins for your account at 
