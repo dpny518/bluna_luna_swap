@@ -197,7 +197,9 @@ print(num_bLunaTokens)
 
 #Minimum exchange rate
 luna_to_bluna_min_rate = 50
-bluna_to_luna_min_rate = -40
+bluna_to_luna_min_rate = -36
+print("1 luna will become"+str(1+1*luna_to_bluna_min_rate/100)+" blua with this exchange: "+str(luna_to_bluna_min_rate))
+print("1 bluna will become"+str(1+1*bluna_to_luna_min_rate /100)+" blua with this exchange: "+str(bluna_to_luna_min_rate))
 
 coins = terra.bank.balance(wallet.key.acc_address)
 
