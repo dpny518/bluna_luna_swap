@@ -10,7 +10,6 @@ from terra_sdk.core.wasm import MsgExecuteContract
 from terra_sdk.core.coins import Coins
 from contact_addresses import contact_addresses_lookup
 from time import sleep
-from pprint import pprint, pp
 import base64
 import os
 import json
@@ -61,6 +60,7 @@ class TerraSwap:
         self.terra = terra
         self.wallet = wallet
 
+    # Run simulation to get return amount
     def get_exchange_rate_luna_bluna(self, amount_luna):
      result = self.terra.wasm.contract_query(
             self.terraSwapContract,
@@ -95,10 +95,12 @@ class TerraSwap:
             }
         )
       return result
-    def swap_luna(self, amount,belief_price):
+    
+    # Swap function
+    def swap_luna(self, amount,belief_price,max_spread):
         print("luna amount: "+str(amount))
         print("bluna amount: "+str(belief_price))
-        max_spread=.001
+        
         if belief_price > 1:
             return_amount=int(belief_price * 1000000)
             increase_allowance = MsgExecuteContract(
@@ -140,7 +142,7 @@ class TerraSwap:
         else:
             return
 
-    def swap_bluna(self, amount,belief_price):
+    def swap_bluna(self, amount,belief_price, max_spread):
         print("bluna amount: "+str(amount))
         print("luna amount: "+str(belief_price))
         if belief_price > 1:
@@ -187,10 +189,11 @@ mk = MnemonicKey(mnemonic=SEED)
 wallet = terra.wallet(mk)
 swap = TerraSwap(terra, wallet)
 bLunaToken = BondedLunaToken(terra, wallet)
-# pp(bLunaToken.get_balance())
+# print(bLunaToken.get_balance())
 num_bLunaTokens = (int) (bLunaToken.get_balance()['balance']) / MILLION
-pp("number of bluna")
-pp(num_bLunaTokens)
+print("Start of Bot")
+print("number of bluna")
+print(num_bLunaTokens)
 
 #Minimum exchange rate
 luna_to_bluna_min_rate = 50
@@ -198,25 +201,26 @@ bluna_to_luna_min_rate = -40
 
 coins = terra.bank.balance(wallet.key.acc_address)
 
-pp("Native coins")
-pp(coins)
+print("Native coins")
+print(coins)
 
 num_Luna = coins.get('uluna').amount / MILLION
-pp("number of luna")
-pp(num_Luna)
+print("number of luna")
+print(num_Luna)
 # terra.tx.search()
 swap_amount=500
 while True:
     # Check new balance of bluna and luna each time
+    max_spread=.001
     bLunaToken = BondedLunaToken(terra, wallet)
     coins = terra.bank.balance(wallet.key.acc_address)
     num_Luna = coins.get('uluna').amount / MILLION
     num_bLunaTokens = (int) (bLunaToken.get_balance()['balance']) / MILLION
-    pp("Current coins before")
-    pp("number of luna")
-    pp(num_Luna)
-    pp("number of bluna")
-    pp(num_bLunaTokens)
+    print("Current coins before swap")
+    print("number of luna")
+    print(num_Luna)
+    print("number of bluna")
+    print(num_bLunaTokens)
     # Decide which coin to check rate to swap based on which one you have more of
     if num_Luna  > num_bLunaTokens:
         swap_amount=int(num_Luna)
@@ -232,7 +236,8 @@ while True:
         # Swap if exchange rate is met
         if(exchange_rate>luna_to_bluna_min_rate):
             print('swap Luna -> bLuna')
-            swap_result = swap.swap_luna(swap_amount, return_amount)
+            # Actual swap
+            swap_result = swap.swap_luna(swap_amount, return_amount,max_spread)
             print("swapped"+str(swap_amount)+"luna for"+str(return_amount)+"bluna")
         else:
             print("not good rate to swap, current rate:"+ str(exchange_rate))
@@ -249,14 +254,15 @@ while True:
         print("we need to find a good time to switch bluna to luna")
         if(exchange_rate>bluna_to_luna_min_rate):
             print('swap bluna -> Luna')
-            swap_result = swap.swap_bluna(swap_amount,return_amount)
+            # Actual swap
+            swap_result = swap.swap_bluna(swap_amount,return_amount,max_spread)
             #print(swap_result[1].raw_log
             print("swapped"+str(swap_amount)+"bluna for"+str(return_amount)+"luna")
         else:
             print("not good rate to swap, current rate:" +str(exchange_rate))
             print("We want a rate better than:"+ str(bluna_to_luna_min_rate))
 
-
+# Time between checking for swap
     sleep(5)
 
 
