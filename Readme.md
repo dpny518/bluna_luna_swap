@@ -3,10 +3,10 @@
 
 
 Edit Dockerfile, paste your seed phrase in the Dockerfile after ENV MNEMONIC "", where it says paste your seed phrase
-Update buy and sell rates
+Update belief prices, so how many luna you want per bluna, and how many bluna you want per luna
 ```
-luna_to_bluna_min_rate = 3
-bluna_to_luna_min_rate = -1
+luna_to_bluna_belief_price = 3
+bluna_to_luna_belief_price = .2
 ```
 Update NETWORK = 'TESTNET' or NETWORK = 'MAINNET' in swapbot.py
 If you are using testnet, then you can get some coins for your account at 
