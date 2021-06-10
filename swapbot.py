@@ -18,7 +18,8 @@ import json
 SEED = os.environ.get("MNEMONIC")
 NETWORK = 'TESTNET'
 MILLION = 1000000
-
+TWOHUNDREDANDFIFTYTHOUSAND=250000
+HUNDREDTHOUSAND=100000
 
 if NETWORK == 'MAINNET':
     chain_id = 'columbus-4'
@@ -95,7 +96,11 @@ class TerraSwap:
             }
         )
       return result
-    
+    def get_fee_estimation(self):
+        estimation = terra.treasury.tax_cap('uusd')
+
+        return estimation.to_data().get('amount')
+
     # Swap function
     def swap_luna(self, amount,return_amount, belief_price, max_spread):
         print("luna amount: "+str(amount))
@@ -133,8 +138,10 @@ class TerraSwap:
                 },
                 {"uluna": int(amount * MILLION)},
             )
-            tx = self.wallet.create_and_sign_tx(msgs=[increase_allowance, swap_luna_to_bluna], gas_prices="0.15uusd", gas_adjustment=1.5)
-            # fee = self.terra.tx.estimate_fee(tx)
+            fee_estimation = self.get_fee_estimation()
+            fee = str(int(fee_estimation) + TWOHUNDREDANDFIFTYTHOUSAND) + 'uusd'
+            #tx = self.wallet.create_and_sign_tx(msgs=[swap_luna_to_bluna],fee=StdFee(MILLION, fee))
+            tx = self.wallet.create_and_sign_tx(msgs=[swap_luna_to_bluna], gas_prices="0.15uusd", gas_adjustment=1.5)
             result = self.terra.tx.broadcast(tx)
             return [tx, result]
         # return result
@@ -169,8 +176,10 @@ class TerraSwap:
       
 
                 )
+            fee_estimation = self.get_fee_estimation()
+            fee = str(int(fee_estimation) + TWOHUNDREDANDFIFTYTHOUSAND) + 'uusd'
+            #tx = self.wallet.create_and_sign_tx(msgs=[swap_bluna_to_luna],fee=StdFee(MILLION, fee))
             tx = self.wallet.create_and_sign_tx(msgs=[swap_bluna_to_luna], gas_prices="0.15uusd", gas_adjustment=1.5)
-            # fee = self.terra.tx.estimate_fee(tx)
             result = self.terra.tx.broadcast(tx)
             return [tx, result]
         else:
@@ -203,6 +212,7 @@ coins = terra.bank.balance(wallet.key.acc_address)
 
 print("Native coins")
 print(coins)
+
 
 num_Luna = coins.get('uluna').amount / MILLION
 print("number of luna")
@@ -238,6 +248,7 @@ while True:
             print('swap Luna -> bLuna')
             # Actual swap
             swap_result = swap.swap_luna(swap_amount, return_amount, belief_price, max_spread)
+            print(swap_result)
             print("swapped"+str(swap_amount)+"luna for"+str(return_amount)+"bluna")
         else:
             print("not good rate to swap, current rate:"+ str(exchange_rate))
@@ -255,7 +266,7 @@ while True:
             print('swap bluna -> Luna')
             # Actual swap
             swap_result = swap.swap_bluna(swap_amount, return_amount, belief_price, max_spread)
-            #print(swap_result[1].raw_log
+            print(swap_result)
             print("swapped"+str(swap_amount)+"bluna for"+str(return_amount)+"luna")
         else:
             print("not good rate to swap, current rate:" +str(exchange_rate))
