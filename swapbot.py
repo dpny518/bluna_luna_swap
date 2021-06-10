@@ -97,8 +97,7 @@ class TerraSwap:
       return result
     
     # Swap function
-    def swap_luna(self, amount,return_amount,max_spread):
-        belief_price=return_amount/amount
+    def swap_luna(self, amount,return_amount, belief_price, max_spread):
         print("luna amount: "+str(amount))
         print("bluna amount: "+str(return_amount))
         print("belief price, bluna per luna "+str(belief_price))
@@ -142,8 +141,7 @@ class TerraSwap:
         else:
             return
 
-    def swap_bluna(self, amount,return_amount, max_spread):
-        belief_price=return_amount/amount
+    def swap_bluna(self, amount,return_amount, belif_price,max_spread):
         print("luna amount: "+str(amount))
         print("bluna amount: "+str(return_amount))
         print("belief price, luna rate per bluna "+str(belief_price))
@@ -195,11 +193,11 @@ print("Start of Bot")
 print("number of bluna")
 print(num_bLunaTokens)
 
-#Minimum exchange rate
-luna_to_bluna_min_rate = 50
-bluna_to_luna_min_rate = -80
-print("1 luna will become"+str(1+1*luna_to_bluna_min_rate/100)+" blua with this exchange: "+str(luna_to_bluna_min_rate))
-print("1 bluna will become"+str(1+1*bluna_to_luna_min_rate /100)+" blua with this exchange: "+str(bluna_to_luna_min_rate))
+#Minimum exchange rate, how many coins do you get for your input
+luna_to_bluna_belief_price = 3
+bluna_to_luna_belief_price = .2
+print("1 luna will become "+str(luna_to_bluna_belief_price)+" bluna")
+print("1 bluna will become "+str(bluna_to_luna_belief_price)+" luna")
 
 coins = terra.bank.balance(wallet.key.acc_address)
 
@@ -231,15 +229,15 @@ while True:
         return_amount = (int) (rate['return_amount']) / MILLION
         # Calcualte exchange rate
         lunas_to_blunas_diff = return_amount - swap_amount
-        exchange_rate = (lunas_to_blunas_diff/swap_amount) * 100
-        print('luna to Bluna')
-        print(exchange_rate)
-        print("we need to find a good time to switch luna to bluna")
+        belief_price = (return_amount/swap_amount)
+        print("Number of bluna we get for each luna")
+        print(belief_price)
+        print("we need to find a good time to switch luna to bluna, we want to get better than "+str(belief_price)+"bluna for each luna")
         # Swap if exchange rate is met
-        if(exchange_rate>luna_to_bluna_min_rate):
+        if(belief_price > bluna_to_luna_belief_price):
             print('swap Luna -> bLuna')
             # Actual swap
-            swap_result = swap.swap_luna(swap_amount, return_amount,max_spread)
+            swap_result = swap.swap_luna(swap_amount, return_amount, belief_price, max_spread)
             print("swapped"+str(swap_amount)+"luna for"+str(return_amount)+"bluna")
         else:
             print("not good rate to swap, current rate:"+ str(exchange_rate))
@@ -249,15 +247,14 @@ while True:
         swap_amount=int(num_bLunaTokens)
         rate = swap.get_exchange_rate_bluna_luna(swap_amount)
         return_amount = (int) (rate['return_amount']) / MILLION
-        blunas_to_lunas_diff = return_amount - swap_amount
-        exchange_rate = (blunas_to_lunas_diff/swap_amount) * 100
-        print('bluna to luna')
-        print(exchange_rate)
-        print("we need to find a good time to switch bluna to luna")
-        if(exchange_rate>bluna_to_luna_min_rate):
+        belief_price = (return_amount/swap_amount)
+        print("Number of luna we get for each bluna")
+        print(belief_price)
+        print("we need to find a good time to switch bluna to luna, we want to get better than "+str(belief_price)+"luna for each bluna")
+        if(belief_price > bluna_to_luna_belief_price):
             print('swap bluna -> Luna')
             # Actual swap
-            swap_result = swap.swap_bluna(swap_amount,return_amount,max_spread)
+            swap_result = swap.swap_bluna(swap_amount, return_amount, belief_price, max_spread)
             #print(swap_result[1].raw_log
             print("swapped"+str(swap_amount)+"bluna for"+str(return_amount)+"luna")
         else:
