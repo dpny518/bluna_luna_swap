@@ -97,18 +97,18 @@ class TerraSwap:
       return result
     
     # Swap function
-    def swap_luna(self, amount,belief_price,max_spread):
+    def swap_luna(self, amount,return_amount,max_spread):
+        belief_price=return_amount/amount
         print("luna amount: "+str(amount))
-        print("bluna amount: "+str(belief_price))
-        
-        if belief_price > 1:
-            return_amount=int(belief_price * 1000000)
+        print("bluna amount: "+str(return_amount))
+        print("belief price, bluna per luna "+str(belief_price))
+        if return_amount> 1:
             increase_allowance = MsgExecuteContract(
                 self.wallet.key.acc_address,
                 self.bLunaContract,
                 {
                     "increase_allowance": {
-                        "amount": str(return_amount),
+                        "amount": str(int(return_amount* MILLION)),
                         "spender": self.terraSwapContract
                     }
                 }
@@ -120,10 +120,10 @@ class TerraSwap:
                 self.terraSwapContract,
                 {
                     "swap": {
-                        "belief_price": str(int(belief_price * 1000000)),
+                        "belief_price": str(int(belief_price* MILLION)),
                         "max_spread": str(max_spread),
                         "offer_asset": {
-                            "amount": str(amount * 1000000),
+                            "amount": str(int(amount * MILLION)),
                             "info": {
                                 "native_token": {
                                     "denom": "uluna"
@@ -132,7 +132,7 @@ class TerraSwap:
                         }
                     }
                 },
-                {"uluna": amount * 1000000},
+                {"uluna": int(amount * MILLION)},
             )
             tx = self.wallet.create_and_sign_tx(msgs=[increase_allowance, swap_luna_to_bluna], gas_prices="0.15uusd", gas_adjustment=1.5)
             # fee = self.terra.tx.estimate_fee(tx)
@@ -142,15 +142,15 @@ class TerraSwap:
         else:
             return
 
-    def swap_bluna(self, amount,belief_price, max_spread):
-        print("bluna amount: "+str(amount))
-        print("luna amount: "+str(belief_price))
-        if belief_price > 1:
-            return_amount=belief_price
-            max_spread=.001
+    def swap_bluna(self, amount,return_amount, max_spread):
+        belief_price=return_amount/amount
+        print("luna amount: "+str(amount))
+        print("bluna amount: "+str(return_amount))
+        print("belief price, luna rate per bluna "+str(belief_price))
+        if return_amount> 1:
             msg_json = {
             "swap": {
-            "belief_price": str(int(belief_price * 1000000)),
+            "belief_price": str(belief_price* MILLION),
             "max_spread": f"{max_spread}",
                         }
                   }
@@ -163,7 +163,7 @@ class TerraSwap:
                 self.bLunaContract,
                 {
                 "send": {
-                "contract": "terra13e4jmcjnwrauvl2fnjdwex0exuzd8zrh5xk29v",
+                "contract": self.terraSwapContract,
                 "amount": str(amount * MILLION),
                 "msg": f"{msg.decode('utf-8')}"
                   }
@@ -197,7 +197,7 @@ print(num_bLunaTokens)
 
 #Minimum exchange rate
 luna_to_bluna_min_rate = 50
-bluna_to_luna_min_rate = -36
+bluna_to_luna_min_rate = -80
 print("1 luna will become"+str(1+1*luna_to_bluna_min_rate/100)+" blua with this exchange: "+str(luna_to_bluna_min_rate))
 print("1 bluna will become"+str(1+1*bluna_to_luna_min_rate /100)+" blua with this exchange: "+str(bluna_to_luna_min_rate))
 
